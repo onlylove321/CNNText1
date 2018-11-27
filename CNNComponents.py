@@ -9,7 +9,21 @@ import sys
 import numpy
 
 def conv_processor(img, conv_filter):
-    pass
+    filter_size = conv_filter.shape[1]
+    result_matrix = numpy.zeros(img.shape)
+    for r in numpy.uint16(numpy.arange(filter_size/2.0,
+                          img.shape[0]-filter_size/2.0+1)):
+        for c in numpy.uint16(numpy.arange(filter_size/2.0,
+                                           img.shape[1]-filter_size/2.0+1)):
+            curr_region = img[r-numpy.uint16(numpy.floor(filter_size/2.0)):r+numpy.uint16(numpy.ceil(filter_size/2.0)),
+                     c-numpy.uint16(numpy.floor(filter_size/2.0)):c+numpy.uint16(numpy.ceil(filter_size/2.0))]
+            curr_resultMatrix = conv_filter * conv_filter
+            curr_result = numpy.sum(curr_resultMatrix)
+            result_matrix[r, c] = curr_result
+    final_result = result_matrix[numpy.uint16(filter_size/2.0):result_matrix.shape[0]-numpy.uint16(filter_size/2.0),
+                          numpy.uint16(filter_size/2.0):result_matrix.shape[1]-numpy.uint16(filter_size/2.0)]
+    return final_result
+
 
 
 
@@ -50,4 +64,28 @@ def conv(img, conv_filter):
             conv_map = conv_processor(img, curr_filter)
         feature_maps[:, :, filter_num] = conv_map  # Holding feature map with the current filter.
     return feature_maps  # Returning all feature maps.
+
+def pooling(feature_maps, stride = 2, size = 2):
+    pool_matrix = numpy.zeros((numpy.uint16((feature_maps.shape[0]-size+1) / stride + 1),
+                              numpy.uint16((feature_maps.shape[1] - size + 1) / stride + 1),
+                              feature_maps.shape[-1]))
+    for num in range(feature_maps.shape[-1]):
+        r2 = 0
+        for r in numpy.arange(0, feature_maps.shape[0] - size + 1, stride):
+            c2 = 0
+            for c in numpy.arange(0, feature_maps.shape[1] - size + 1, stride):
+                pool_matrix[r2, c2, num] = numpy.max([feature_maps[r:r+size,  c:c+size]])
+                c2 = c2 + 1
+            r2 = r2 + 1
+    return pool_matrix
+
+
+def relu(feature_maps):
+    rele_out = numpy.zeros(feature_maps.shape)
+    for num in range(feature_maps.shape[-1]):
+        for r in numpy.arange(0, feature_maps.shape[0]):
+            for c in numpy.arange(0, feature_maps.shape[1]):
+                rele_out[r, c, num] = numpy.max([0, feature_maps[r, c, num]])
+    return rele_out
+
 
