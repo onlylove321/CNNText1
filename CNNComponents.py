@@ -16,8 +16,8 @@ def conv_processor(img, conv_filter):
         for c in numpy.uint16(numpy.arange(filter_size/2.0,
                                            img.shape[1]-filter_size/2.0+1)):
             curr_region = img[r-numpy.uint16(numpy.floor(filter_size/2.0)):r+numpy.uint16(numpy.ceil(filter_size/2.0)),
-                     c-numpy.uint16(numpy.floor(filter_size/2.0)):c+numpy.uint16(numpy.ceil(filter_size/2.0))]
-            curr_resultMatrix = conv_filter * conv_filter
+                          c-numpy.uint16(numpy.floor(filter_size/2.0)):c+numpy.uint16(numpy.ceil(filter_size/2.0))]
+            curr_resultMatrix = curr_region * conv_filter
             curr_result = numpy.sum(curr_resultMatrix)
             result_matrix[r, c] = curr_result
     final_result = result_matrix[numpy.uint16(filter_size/2.0):result_matrix.shape[0]-numpy.uint16(filter_size/2.0),
